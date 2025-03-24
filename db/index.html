@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 - Sensor Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .value {
+            font-size: 2rem;
+            color: #007BFF;
+        }
+        .label {
+            font-size: 1.2rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ESP32 - Sensor Dashboard</h1>
+
+<div class="container">
+    <div class="card">
+        <div class="label">Temperatura</div>
+        <div id="temp" class="value">-- °C</div>
+    </div>
+    <div class="card">
+        <div class="label">Humedad</div>
+        <div id="humidity" class="value">-- %</div>
+    </div>
+    <div class="card">
+        <div class="label">Distancia</div>
+        <div id="distance" class="value">-- cm</div>
+    </div>
+</div>
+
+<script>
+    // Función para obtener los datos del ESP32
+    async function fetchData() {
+        try {
+            const tempResponse = await fetch("http://192.168.0.11/api/temperatura");
+            const humidityResponse = await fetch("http://192.168.0.11/api/humedad");
+            const distanceResponse = await fetch("http://192.168.0.11/api/distancia");
+
+            if (tempResponse.ok && humidityResponse.ok && distanceResponse.ok) {
+                const tempData = await tempResponse.json();
+                const humidityData = await humidityResponse.json();
+                const distanceData = await distanceResponse.json();
+
+                // Mostrar datos en la interfaz
+                document.getElementById("temp").textContent = `${tempData.temperatura.toFixed(1)} °C`;
+                document.getElementById("humidity").textContent = `${humidityData.humedad.toFixed(1)} %`;
+                document.getElementById("distance").textContent = 
+                    distanceData.distancia >= 0 ? `${distanceData.distancia.toFixed(2)} cm` : `Error`;
+            } else {
+                console.error("Error al obtener datos.");
+            }
+        } catch (error) {
+            console.error("Error de conexión:", error);
+        }
+    }
+
+    // Actualizar datos cada 2 segundos
+    setInterval(fetchData, 2000);
+
+    // Llamada inicial para mostrar datos al cargar
+    fetchData();
+</script>
+
+</body>
+</html>

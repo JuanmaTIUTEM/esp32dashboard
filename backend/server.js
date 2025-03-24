@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',   // Coloca tu contraseña
+    password: '',  
     database: 'esp32db'
 });
 
